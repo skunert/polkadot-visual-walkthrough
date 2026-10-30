@@ -131,6 +131,7 @@
 			<line class="split pending" x1="206" y1="165" x2="304" y2="165" />
 			<text class="split-label" x="255" y="179" text-anchor="middle">this block</text>
 		</g>
+		<text class="hint" x="50" y="309">tiles picture the streams · the runtime keeps frontier hashes, not payloads</text>
 		<path id="a-fold" class="fold" d="M472,138 C500,138 500,90 470,64" />
 
 		<!-- ack row: A reads -->
@@ -173,8 +174,8 @@
 			<rect x="258" y="118" width="48" height="40" rx="6" />
 			<text class="msg-leaf" x="282" y="143" text-anchor="middle">m₂</text>
 		</g>
-		<text id="send-log1" class="send-log" x="150" y="298" style="opacity:0">send(B, m₁) ✓</text>
-		<text id="send-log2" class="send-log" x="300" y="298" style="opacity:0">send(B, m₂) ✓</text>
+		<text id="send-log1" class="send-log" x="150" y="290" style="opacity:0">send(B, m₁) ✓</text>
+		<text id="send-log2" class="send-log" x="300" y="290" style="opacity:0">send(B, m₂) ✓</text>
 	</g>
 
 	<!-- ───────────── Parachain B ───────────── -->
@@ -292,11 +293,12 @@
 		</g>
 		<!-- consumed Data is enqueued for B's application, never executed by the inherent -->
 		<g id="b-queue" style="opacity:0">
-			<text class="archive-label" x="670" y="296">message queue</text>
-			<g class="archive-chip"><rect x="770" y="283" width="40" height="18" rx="4" /><text x="790" y="296" text-anchor="middle" class="msg">m₁</text></g>
-			<g class="archive-chip"><rect x="814" y="283" width="40" height="18" rx="4" /><text x="834" y="296" text-anchor="middle" class="msg">m₂</text></g>
-			<text class="archive-note" x="864" y="296">→ B's application</text>
+			<text class="archive-label" x="670" y="287">message queue</text>
+			<g class="archive-chip"><rect x="770" y="274" width="40" height="18" rx="4" /><text x="790" y="287" text-anchor="middle" class="msg">m₁</text></g>
+			<g class="archive-chip"><rect x="814" y="274" width="40" height="18" rx="4" /><text x="834" y="287" text-anchor="middle" class="msg">m₂</text></g>
+			<text class="archive-note" x="864" y="287">→ B's application</text>
 		</g>
+		<text class="hint" x="670" y="309">tiles picture the streams · the runtime keeps frontier hashes, not payloads</text>
 		<path id="b-fold" class="fold" d="M1092,210 C1130,210 1130,90 1090,64" />
 	</g>
 
@@ -351,7 +353,7 @@
 	<!-- ───────────── JAM chain ───────────── -->
 	<g id="jam" class="chain jam">
 		<text class="title" x="50" y="538">JAM chain</text>
-		<text class="sub" x="160" y="538">Parachain Service · stores 32-byte roots only</text>
+		<text class="sub" x="160" y="538">Parachain Service · its state holds 32-byte roots, not messages</text>
 
 		<g id="refine" class="node-g">
 			<rect class="node" x="480" y="554" width="200" height="60" rx="10" />
@@ -505,7 +507,7 @@
 			<rect x="205" y="378" width="230" height="30" rx="6" />
 			<text x="320" y="398" text-anchor="middle">data root = H(3 ‖ bag(peaks))</text>
 		</g>
-		<text class="hint" x="200" y="592">the stored frontier only catches up at block N+3 init</text>
+		<text class="hint" x="200" y="592">the stored frontier catches up at block N+3 init</text>
 
 		<!-- 2: fold into the commitment trie -->
 		<g id="bag-right" style="opacity:0">
@@ -569,15 +571,15 @@
 		<rect class="backdrop" x="0" y="0" width="1200" height="820" />
 		<rect class="card" x="170" y="210" width="860" height="395" rx="16" />
 		<text class="title" x="200" y="250">Accumulate · on-chain, once per work package</text>
-		<text class="sub" x="200" y="272">checks run in order; the first failure rejects block N+2 without a trace</text>
+		<text class="sub" x="200" y="272">checks run in order; processing stops at the first failure</text>
 		<g id="ac-r1" class="ac-row" style="opacity:0"><text class="label" x="200" y="310">1</text><text x="290" y="310">A is registered and not deregistering</text><text class="tick" x="990" y="310" text-anchor="end">✓</text></g>
 		<g id="ac-r2" class="ac-row" style="opacity:0"><text class="label" x="200" y="340">2</text><text x="290" y="340">validation_code matches A's current code</text><text class="tick" x="990" y="340" text-anchor="end">✓</text></g>
-		<g id="ac-r3" class="ac-row" style="opacity:0"><text class="label" x="200" y="370">3</text><text x="290" y="370">the digest is Ok (an Err would only be logged)</text><text class="tick" x="990" y="370" text-anchor="end">✓</text></g>
+		<g id="ac-r3" class="ac-row" style="opacity:0"><text class="label" x="200" y="370">3</text><text x="290" y="370">the digest is Ok · an Err is logged, then processing stops</text><text class="tick" x="990" y="370" text-anchor="end">✓</text></g>
 		<g id="ac-r4" class="ac-row" style="opacity:0"><text class="label" x="200" y="400">4</text><text x="290" y="400">parent_head_hash = hash(A's current head)</text><text class="tick" x="990" y="400" text-anchor="end">✓</text></g>
 		<g id="ac-r5" class="ac-row" style="opacity:0"><rect class="row-hi" x="192" y="411" width="816" height="26" rx="6" /><text class="label" x="200" y="430">5</text><text x="290" y="430">settlement: every required root is in its sender's ring</text><text class="mono dim" x="958" y="430" text-anchor="end">none</text><text class="tick" x="990" y="430" text-anchor="end">✓</text></g>
 		<g id="ac-r6" class="ac-row" style="opacity:0"><text class="label" x="200" y="460">6</text><text x="290" y="460">enact: write head_data, push T<tspan class="subs" dy="3">A2</tspan><tspan dy="-3"></tspan> into A's ring</text><text class="tick" x="990" y="460" text-anchor="end">✓</text></g>
 		<g id="ac-r7" class="ac-row" style="opacity:0"><text class="label" x="200" y="490">7</text><text x="290" y="490">replay upward messages</text><text class="mono dim" x="958" y="490" text-anchor="end">none</text><text class="tick" x="990" y="490" text-anchor="end">✓</text></g>
-		<text id="ac-foot" class="hint" x="200" y="550" style="opacity:0">a rejected candidate writes no state and records no log entry</text>
+		<text id="ac-foot" class="hint" x="200" y="550" style="opacity:0">a failed check 1, 2, 4 or 5 rejects the block: no state written, no log entry. A Refine Err (3) is logged.</text>
 	</g>
 
 	<!-- ───────────── Stage 3: B's collator verifies the response ───────────── -->
@@ -599,7 +601,7 @@
 		<rect class="backdrop" x="0" y="0" width="1200" height="820" />
 		<rect class="card" x="170" y="210" width="860" height="395" rx="16" />
 		<text class="title" x="200" y="250">Refine for block M+2 · B's validation code</text>
-		<text class="sub" x="200" y="272">block M+2 never saw a root of A; validation binds its consumption to one, using the lift in the PoV</text>
+		<text class="sub" x="200" y="272">block M+2 names no root of A; validation binds its consumption to one, using the lift in the PoV</text>
 		<text class="label" x="200" y="300">validation step</text>
 		<text class="label" x="620" y="300">result</text>
 		<line class="card-sep" x1="200" y1="308" x2="1000" y2="308" />
@@ -636,7 +638,7 @@
 	<g id="why" style="opacity:0">
 		<rect class="backdrop solid" x="0" y="0" width="1200" height="820" />
 		<text class="kicker" x="600" y="110" text-anchor="middle">WHY</text>
-		<text class="why-title" x="600" y="152" text-anchor="middle">Messages off-chain, only hashes on chain</text>
+		<text class="why-title" x="600" y="152" text-anchor="middle">Messages off-chain, hashes on chain</text>
 
 		<g id="why-old">
 			<rect class="why-panel" x="110" y="190" width="460" height="490" rx="14" />
@@ -668,7 +670,7 @@
 				<rect x="-50" y="-14" width="100" height="28" rx="14" />
 				<text y="5" text-anchor="middle">root · 32 B</text>
 			</g>
-			<text class="why-cap" x="860" y="645" text-anchor="middle">only one 32-byte root per block is stored on chain</text>
+			<text class="why-cap" x="860" y="645" text-anchor="middle">on chain: a 32-byte root per block that sent messages</text>
 		</g>
 
 		<!-- travelling copies -->

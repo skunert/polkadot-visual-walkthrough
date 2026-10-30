@@ -171,7 +171,7 @@ function sendData(tl, i, slotX, fillWidth, speed = 1) {
 	pulse(tl, '#a-credit-fill', undefined, 1.15)
 	tl.to('#a-credit-fill', { attr: { width: fillWidth }, duration: 0.3 })
 	swap(tl, i === 1 ? '#a-cr-0a' : `#a-cr-${i - 1}`, `#a-cr-${i}`, '<')
-	appear(tl, `#fly${i}`, logX, 294)
+	appear(tl, `#fly${i}`, logX, 286)
 	tl.to(`#fly${i}`, { x: slotX, y: 138, duration: 0.7 * speed })
 	fadeOut(tl, `#fly${i}`)
 	tl.to(`#a-leaf${i}`, { opacity: 1, duration: 0.3 }, '<')
