@@ -1,0 +1,8 @@
+/* Bundled fonts, so every viewer sees the same text widths as the author. */
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/jetbrains-mono';
+
+:root {
+	--mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, "DejaVu Sans Mono", monospace;
+	--sans: "Inter Variable", Inter, "Segoe UI", system-ui, "DejaVu Sans", sans-serif;
+}
