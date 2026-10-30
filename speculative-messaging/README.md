@@ -4,10 +4,11 @@ An interactive, step-by-step animation of speculative messaging over the
 Parachain Service, following the inclusion tier. Written for readers who know
 polkadot-sdk but are new to the messaging design.
 
-It is one pass through a full round trip: channel setup (told compactly), then
-A's first data block in detail on its way to B (commit, settlement on JAM,
-fetch and verify, consumption, the settlement check of B's block), and finally
-the credit flowing back to A.
+It is one pass through a full round trip: the channel handshake (B accepts, A
+answers with `Hello`, B opens), told compactly; then A's first data block in
+detail on its way to B (commit, settlement on JAM, fetch and verify,
+consumption, B's confirming register, the settlement check of B's block); and
+finally the confirmation reaching A.
 
 ## Specs
 
@@ -17,12 +18,14 @@ The walkthrough follows these design documents, all open pull requests on
 - [#11883 JAM: Parachain Service Design](https://github.com/paritytech/polkadot-sdk/pull/11883):
   the Parachain Service on JAM.
 - [#13000 jam: Speculative Messaging spec for PS](https://github.com/paritytech/polkadot-sdk/pull/13000):
-  speculative messaging over the Parachain Service, stacked on #11883. This is
-  the main source for the walkthrough.
-- [#12659 Speculative Messaging v0.5](https://github.com/paritytech/polkadot-sdk/pull/12659):
-  the general speculative messaging design that #13000 builds on.
-  [#13622](https://github.com/paritytech/polkadot-sdk/pull/13622) revises it to
-  v0.6.
+  speculative messaging over the Parachain Service, stacked on #11883. The
+  walkthrough follows its settlement ring and host functions as of
+  `2adaf636ddb`.
+- [#13622 Speculative Messaging v0.6](https://github.com/paritytech/polkadot-sdk/pull/13622):
+  the general speculative messaging design, as of `360db8c4258`. The channel
+  handshake, registers, in-flight limit and fetch protocol follow this
+  version. It revises v0.5 in
+  [#12659](https://github.com/paritytech/polkadot-sdk/pull/12659).
 
 ## Run
 

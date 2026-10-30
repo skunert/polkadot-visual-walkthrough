@@ -16,7 +16,7 @@ for (let i = 0; i < n; i++) {
 	await page.screenshot({ path: `${out}/step-${i}.png` })
 }
 // Mid-flight frames: fraction through a step's segment, addressed by step id.
-const mids = [['ov-read', 0.7], ['s3-fetch', 0.6], ['s5-settle', 0.75]]
+const mids = [['ov-hello', 0.55], ['ov-opened', 0.3], ['s3-fetch', 0.6], ['s5-settle', 0.75]]
 for (const [id, f] of mids) {
 	const i = await page.evaluate(([id, f]) => {
 		const d = window.__deck

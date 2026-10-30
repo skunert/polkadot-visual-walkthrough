@@ -1,17 +1,18 @@
 // Narration for each step. `id` doubles as the timeline label in main.js.
 // The scene shows *what* changes; the panel explains *why*.
 //
-// One pass through the round trip. Channel setup is told compactly; the first
-// data block (block N+2) then shows every mechanism in detail on its way to B.
+// One pass through the round trip. The channel handshake is told compactly; the
+// first data block (block N+2) then shows every mechanism in detail on its way to B.
+// Follows speculative messaging design v0.6 and the Parachain Service design.
 
 const S0 = 'Introduction'
 const S1 = 'Opening the channel'
 const S2 = 'A sends block N+2'
 const S3 = 'Block N+2 settles on JAM'
 const S4 = 'B fetches the messages'
-const S5 = 'B consumes them'
-const S6 = 'Block M+1 settles'
-const S7 = 'Credit flows back'
+const S5 = 'B consumes them in block M+2'
+const S6 = 'Block M+2 settles'
+const S7 = 'The confirmation reaches A'
 
 // Labels of the chapter buttons in the panel.
 export const chips = { [S0]: '★', [S1]: '1', [S2]: '2', [S3]: '3', [S4]: '4', [S5]: '5', [S6]: '6', [S7]: '7' }
@@ -66,51 +67,70 @@ export const steps = [
 	},
 	// ── Opening the channel ──
 	{
-		id: 'ov-open',
+		id: 'ov-accept',
 		stage: S1,
-		title: 'A opens the channel',
+		title: 'B accepts the channel',
 		body: `
 			<ul>
-				<li>In A's block N, <code>OpenChannel</code> becomes message #0 of A's data stream (dashed until the
-				block commits to it). It is the only message A may send before B grants any
-				credit (permission to send). The channel is <em>Opening</em>.</li>
-				<li>At the end of the block, A combines all its streams into one hash, its
-				<code>StreamsRoot</code>, here T<sub>A1</sub>. A's collator keeps a copy of the message in its
-				archive.</li>
-				<li>Block N goes through JAM, and T<sub>A1</sub> is stored in A's settlement ring. Both steps are
+				<li>A wants a channel to B (its runtime called <code>open()</code>, which writes nothing yet).
+				On B, someone submits <code>accept_open_channel(A, …)</code>; B's policy decides who may.
+				B's collator includes it in block M.</li>
+				<li>B records the channel and appends a <code>Register</code> to its ack stream:
+				<em>Accepting</em> session 1, with the versions and the maximum message size B supports.
+				<code>up_to 0</code>: B has consumed nothing yet.</li>
+				<li>B's streams changed, so block M commits a new root, T<sub>B1</sub>. B's collator archives the
+				register.</li>
+				<li>Block M goes through JAM and T<sub>B1</sub> is stored in B's settlement ring. Both steps are
 				shown in detail later, with A's first data block.</li>
 			</ul>`,
 	},
 	{
-		id: 'ov-accept',
+		id: 'ov-hello',
 		stage: S1,
-		title: 'B accepts and grants credit',
+		title: 'A answers with Hello',
 		body: `
 			<ul>
-				<li>Someone on B submits <code>accept_open_channel(A, …)</code>, a signed extrinsic like
-				<code>hrmp_accept_open_channel</code>. B's collator includes it in B's block M.</li>
-				<li>B records the channel and appends a <code>Register</code> to its ack stream. The register
-				says how much A may send (the credit) and how far B has read (<code>up_to</code>).</li>
-				<li>B's streams changed, so block M commits a new root T<sub>B1</sub>. B's collator archives the
-				register.</li>
-				<li>Block M goes through JAM and T<sub>B1</sub> is stored in B's settlement ring.</li>
+				<li>A's collator watches B's ring on JAM. It changed: B's newest root is T<sub>B1</sub>.</li>
+				<li>It asks B's collators for the newest register of the channel (a <code>MessagesRequest</code>
+				for the stream's head) and checks it against T<sub>B1</sub> with a Merkle proof.</li>
+				<li>In block N, the messaging inherent brings the register. A applies it and answers with
+				<code>Hello</code> (session 1, a version from B's range) as message #0 of its data stream.
+				A writes nothing to the channel before this point. <code>Hello</code> counts as in flight:
+				1 of 16, A's own limit.</li>
+				<li>Block N's streams changed, so it commits root T<sub>A1</sub>. A's collator archives
+				<code>Hello</code>.</li>
+				<li>Block N read B's register, so JAM accepts it only if T<sub>B1</sub> is in B's ring. It is.
+				T<sub>A1</sub> is stored in A's ring. This check is shown in detail for B's block M+2.</li>
+			</ul>`,
+	},
+	{
+		id: 'ov-opened',
+		stage: S1,
+		title: 'B consumes Hello: the channel is open',
+		body: `
+			<ul>
+				<li>B's collator sees T<sub>A1</sub> in A's ring and fetches A's data stream from #0, proven
+				against T<sub>A1</sub>: <code>Hello</code>.</li>
+				<li>In block M+1, B consumes <code>Hello</code> and the channel is <em>Opened</em>. The
+				messaging pallet handles <code>Hello</code> itself; it never reaches B's application.</li>
+				<li>At the end of every block in which it changed, B publishes its register: now
+				<code>up_to 1</code>, Opened. B's streams changed, so block M+1 commits root T<sub>B2</sub>.</li>
+				<li>Block M+1 consumed from A, so JAM accepts it only if T<sub>A1</sub> is in A's ring. It is.
+				T<sub>B2</sub> is stored in B's ring.</li>
 			</ul>`,
 	},
 	{
 		id: 'ov-read',
 		stage: S1,
-		title: 'A reads the register; the channel is open',
+		title: 'A reads Opened and may send',
 		body: `
 			<ul>
-				<li>A's collator watches B's ring on JAM. It changed: B's newest root is T<sub>B1</sub>.</li>
-				<li>A's collator asks B's collators for the newest register and checks it against T<sub>B1</sub>
-				with a Merkle proof. Only the newest register matters, so one entry is enough.</li>
-				<li>The register goes into A's next block, N+1, through the messaging inherent. The channel is
-				open and A has credit: 16 messages. <code>OpenChannel</code> already counts against it,
-				so 1 of 16 is in flight.</li>
-				<li>Reading the register makes block N+1 depend on T<sub>B1</sub>: JAM accepts it only if
-				T<sub>B1</sub> is in B's ring. It is, so the block is accepted. The same check is shown in
-				detail for B's block M+1.</li>
+				<li>A's collator sees T<sub>B2</sub> in B's ring and fetches the newest register, checked
+				against T<sub>B2</sub>.</li>
+				<li>Block N+1 applies it: the channel is open for data. B has consumed <code>Hello</code>
+				(<code>up_to 1</code>), so nothing is in flight: 0 of 16.</li>
+				<li>Block N+1 changed no stream, so it has no root of its own. JAM still checks its dependency:
+				T<sub>B2</sub> is in B's ring.</li>
 			</ul>`,
 	},
 	// ── A sends block N+2 ──
@@ -120,25 +140,25 @@ export const steps = [
 		title: "A's collator starts block N+2",
 		body: `
 			<ul>
-				<li>A's collator starts block N+2. The dependency on T<sub>B1</sub> belonged to block N+1; every
+				<li>A's collator starts block N+2. The dependency on T<sub>B2</sub> belonged to block N+1; every
 				block declares its own.</li>
-				<li>In flight is everything A sent that B has not yet confirmed, signals included: so far
-				only <code>OpenChannel</code>, 1 of the 16 messages of credit. Bytes are limited the same
-				way.</li>
+				<li>In flight is everything A sent that B has not yet confirmed: nothing so far. The limit, 16
+				messages, is A's own configuration (<code>MaxInFlight</code>), not something B grants.</li>
 			</ul>`,
 	},
 	{
 		id: 's1-send',
 		stage: S2,
-		title: 'Two sends, each gated by credit',
+		title: 'Two sends, each gated by the in-flight limit',
 		body: `
 			<ul>
-				<li>The app calls <code>send(B, data)</code>. The runtime checks the credit and appends
-				the message to this block's outbox (<code>OutboundMessages</code>).</li>
+				<li>The app calls <code>send(B, data)</code>. The runtime checks the in-flight limit and B's
+				maximum message size, then appends the message to this block's outbox
+				(<code>OutboundMessages</code>).</li>
 				<li>Each stream is a Merkle Mountain Range (MMR), an append-only Merkle structure. The runtime
 				stores only its frontier, a few peak hashes, never the messages themselves.</li>
 				<li>The new messages take the next positions, #1 and #2. During the block, the stored frontier
-				still covers only #0.</li>
+				still covers only #0, the <code>Hello</code>.</li>
 			</ul>`,
 	},
 	{
@@ -149,8 +169,9 @@ export const steps = [
 			<ul>
 				<li>At the end of the block, the runtime adds #1 and #2 to the frontier in memory: #1 merges
 				with #0 into a peak, #2 starts a new one.</li>
-				<li>Hashing the peaks together (bagging) gives the stream's root. It is never stored; it is
-				always recomputed from the frontier.</li>
+				<li>The stream's root hashes the leaf count together with the bagged peaks, so a proof cannot
+				claim a different number of messages. It is never stored; it is always recomputed from the
+				frontier.</li>
 			</ul>`,
 	},
 	{
@@ -161,7 +182,7 @@ export const steps = [
 			<ul>
 				<li>A's <code>StreamsRoot</code> is the root of a small Merkle trie over all its streams, keyed
 				by stream id. Only the paths of changed streams are recomputed.</li>
-				<li>The new root T<sub>A2</sub> (A's second root: only blocks that send messages publish one)
+				<li>The new root T<sub>A2</sub> (A's second root: only blocks that change a stream publish one)
 				is the single hash A publishes for block N+2. It goes into the block
 				header, and during validation it is handed to JAM (host function 204).</li>
 				<li>A block that changes no stream publishes no root.</li>
@@ -224,7 +245,7 @@ export const steps = [
 				fixed list of checks.</li>
 				<li>Checks 1–4: block N+2 must build on A's current head and use A's current code.</li>
 				<li>Check 5 is the messaging check. Block N+2 depends on no other chain, so it passes
-				trivially; B's block M+1 is checked here for real.</li>
+				trivially; B's block M+2 is checked here for real.</li>
 			</ul>`,
 	},
 	{
@@ -233,10 +254,10 @@ export const steps = [
 		title: "T<sub>A2</sub> lands in A's ring",
 		body: `
 			<ul>
-				<li>Accumulate updates A's head and stores T<sub>A2</sub> in A's settlement ring. The head marker
-				moves to the next free slot.</li>
-				<li>The ring keeps A's last 64 roots. Any block of another chain may now depend on T<sub>A2</sub>,
-				as long as it stays in the ring.</li>
+				<li>Accumulate updates A's head and stores T<sub>A2</sub> in A's settlement ring.</li>
+				<li>The ring keeps A's 64 newest distinct roots; the oldest drops out when a new one arrives.
+				Any block of another chain may now depend on T<sub>A2</sub>, as long as it stays in the
+				ring.</li>
 			</ul>`,
 	},
 	// ── B fetches the messages ──
@@ -248,7 +269,7 @@ export const steps = [
 			<ul>
 				<li>B's collator watches A's ring and sees the new root T<sub>A2</sub>.</li>
 				<li>B's runtime tells it which streams B reads, and from which position: A's data stream, from
-				#0. B has not consumed anything yet, not even <code>OpenChannel</code>.</li>
+				#1. B consumed <code>Hello</code> in block M+1.</li>
 				<li>B builds on T<sub>A2</sub> because it is already settled on JAM: B's block cannot fail because
 				of A.</li>
 			</ul>`,
@@ -259,10 +280,10 @@ export const steps = [
 		title: "B asks A's collator for the messages",
 		body: `
 			<ul>
-				<li>B's collator asks A's collators for A's data stream from #0, proven against T<sub>A2</sub>
+				<li>B's collator asks A's collators for A's data stream from #1, proven against T<sub>A2</sub>
 				(a <code>MessagesRequest</code>).</li>
-				<li>A's collator answers from its archive: <code>OpenChannel</code>, m<sub>1</sub> and
-				m<sub>2</sub>, plus the proofs that tie them to T<sub>A2</sub>.</li>
+				<li>A's collator answers from its archive: m<sub>1</sub> and m<sub>2</sub>, plus the proofs
+				that tie them to T<sub>A2</sub>.</li>
 				<li>Messages are addressed by stream and position, not by block: B does not need to know which
 				of A's blocks wrote them.</li>
 			</ul>
@@ -276,8 +297,9 @@ export const steps = [
 		title: 'B checks the response',
 		body: `
 			<ul>
-				<li>B's collator hashes the messages and appends them to its frontier for A's stream, empty so
-				far. Order and count need no separate check: anything else would give a different root.</li>
+				<li>B's collator hashes the messages and appends them to its frontier for A's stream, which
+				holds <code>Hello</code>. Order and count need no separate check: anything else would give a
+				different root.</li>
 				<li>The proofs then lead from that stream root to A's <code>StreamsRoot</code>. B is caught
 				up, so the trie proof alone is enough.</li>
 				<li>The result equals T<sub>A2</sub>, which B read from JAM itself. The response is authentic.</li>
@@ -287,11 +309,11 @@ export const steps = [
 	{
 		id: 's4-inherent',
 		stage: S5,
-		title: "B's collator starts block M+1",
+		title: "B's collator starts block M+2",
 		body: `
 			<ul>
-				<li>B's collator starts block M+1 and puts the verified messages into its messaging inherent, as
-				A did with the register.</li>
+				<li>B's collator starts block M+2 and puts the verified messages into its messaging inherent, as
+				it did with <code>Hello</code>.</li>
 				<li>The inherent carries only the messages, no root and no proofs. Binding them to T<sub>A2</sub>
 				happens later, during validation.</li>
 			</ul>`,
@@ -299,24 +321,37 @@ export const steps = [
 	{
 		id: 's4-consume',
 		stage: S5,
-		title: 'B consumes #0–#2',
+		title: 'B consumes #1 and #2',
 		body: `
 			<ul>
-				<li>B's runtime hashes each message and appends it to its frontier for A's stream: 0 → 3
-				messages. That is the runtime's only check.</li>
-				<li><code>OpenChannel</code> is consumed like any message; m<sub>1</sub> and m<sub>2</sub> go
-				to B's application.</li>
-				<li>The block records what it consumed: A's data stream, positions 0 to 3. B sent nothing,
-				so its root stays T<sub>B1</sub>.</li>
+				<li>B's runtime hashes each message and appends it to its frontier for A's stream: 1 → 3
+				messages. That is its only proof check; it also applies the channel rules (Opened, size,
+				version).</li>
+				<li>m<sub>1</sub> and m<sub>2</sub> are enqueued in B's message queue, which delivers them to
+				B's application. The inherent never executes them.</li>
+				<li>The block records what it consumed: A's data stream, positions 1 to 3.</li>
+			</ul>`,
+	},
+	{
+		id: 's4-register',
+		stage: S5,
+		title: 'Block end: B confirms in the same block',
+		body: `
+			<ul>
+				<li>B's register changed, so block M+2 publishes it at its end: <code>up_to 3</code>, Opened.
+				Everything before #3 is consumed.</li>
+				<li>B's streams changed, so block M+2 commits a new root, T<sub>B3</sub>; B's collator archives
+				the register.</li>
+				<li>There is no batching: B publishes in every block in which its register changed.</li>
 			</ul>`,
 	},
 	{
 		id: 's5-package',
 		stage: S5,
-		title: 'Block M+1 goes to JAM, with a lift',
+		title: 'Block M+2 goes to JAM, with a lift',
 		body: `
 			<ul>
-				<li>B's collator wraps block M+1 into a work package, as A did.</li>
+				<li>B's collator wraps block M+2 into a work package, as A did.</li>
 				<li>The PoV also carries a <em>lift</em>: a proof that what B consumed from A's stream is
 				contained in a root of A that JAM knows. Here it is a single trie proof, about 300 bytes.</li>
 			</ul>`,
@@ -327,9 +362,11 @@ export const steps = [
 		title: 'Validation turns consumption into a dependency',
 		body: `
 			<ul>
-				<li>After re-executing block M+1, B's validation code reads the consumption record and checks
-				the lift: the 3 consumed messages lead to A's <code>StreamsRoot</code> T<sub>A2</sub>.</li>
-				<li>It declares the dependency with host function 205: <code>[(A, T<sub>A2</sub>)]</code>.</li>
+				<li>After re-executing block M+2, B's validation code reads the consumption record and checks
+				the lift: A's stream, consumed up to 3 messages, leads to A's <code>StreamsRoot</code>
+				T<sub>A2</sub>.</li>
+				<li>It declares the dependency with host function 205: <code>[(A, T<sub>A2</sub>)]</code>.
+				Function 204 declares B's own new root, T<sub>B3</sub>.</li>
 				<li>The Parachain Service only checks the form of that list. Proving the lift is the job of
 				B's own validation code, like everything else in the block.</li>
 			</ul>`,
@@ -341,39 +378,27 @@ export const steps = [
 		title: "Check 5: is T<sub>A2</sub> in A's ring?",
 		body: `
 			<ul>
-				<li>Accumulate looks up (A, T<sub>A2</sub>) in A's settlement ring. It is there, so block M+1 is
-				accepted and B's head moves to M.</li>
+				<li>Accumulate looks up (A, T<sub>A2</sub>) in A's settlement ring. It is there, so block M+2 is
+				accepted: B's head moves to M+2 and T<sub>B3</sub> is stored in B's ring.</li>
 				<li>Had it been missing, B's block would be dropped without any log entry, together with all
 				its upward messages.</li>
 				<li>Only roots already in the ring count: B's block can never depend on a root of A that JAM
 				has not settled yet.</li>
 			</ul>`,
 	},
-	// ── Credit flows back ──
-	{
-		id: 'ov-republish',
-		stage: S7,
-		title: 'B confirms with a new register',
-		body: `
-			<ul>
-				<li>When B has consumed enough (for example a quarter of the credit) or enough time has passed,
-				B appends a new <code>Register</code> with <code>up_to 3</code>: everything before #3 is
-				consumed. Here that happens in B's next block, M+2.</li>
-				<li>Block M+2 commits a new root T<sub>B2</sub>; B's collator archives the register.</li>
-				<li>Block M+2 goes through JAM and T<sub>B2</sub> is stored in B's settlement ring.</li>
-			</ul>`,
-	},
+	// ── The confirmation reaches A ──
 	{
 		id: 'ov-credit',
 		stage: S7,
-		title: 'Credit flows back to A',
+		title: 'A applies the confirmation',
 		body: `
 			<ul>
-				<li>A's collator fetches the new register, checked against T<sub>B2</sub>.</li>
-				<li>A's next block, N+3, imports it: messages before #3 are confirmed, so nothing is in flight
-				any more, and JAM accepts the block because T<sub>B2</sub> is in B's ring.</li>
-				<li>A may now delete #0–#2 from its archive: B confirmed them under a settled root, so this
-				cannot be undone.</li>
+				<li>A's collator sees T<sub>B3</sub> in B's ring and fetches the newest register, checked
+				against T<sub>B3</sub>.</li>
+				<li>A's next block, N+3, applies it: messages before #3 are confirmed, so nothing is in flight
+				any more, and JAM accepts the block because T<sub>B3</sub> is in B's ring.</li>
+				<li>Once B's block M+2 is final, A's collator may delete #0–#2 from its archive: B confirmed
+				them, and that can no longer be reverted.</li>
 			</ul>`,
 	},
 	{
@@ -382,11 +407,12 @@ export const steps = [
 		title: 'The whole picture',
 		body: `
 			<ul>
-				<li>A sent m<sub>1</sub> and m<sub>2</sub>, B consumed them, and B's register returned the
-				credit.</li>
-				<li>The register took the same path the other way: A fetched and checked it, consumed it
-				through an inherent, and A's block passed the settlement check against T<sub>B1</sub>.</li>
-				<li>JAM stored a few 32-byte roots and checked one dependency per block. All messages and
+				<li>B accepted, A answered with <code>Hello</code>, B opened the channel. Then A sent
+				m<sub>1</sub> and m<sub>2</sub>, B consumed them and confirmed in the same block, and A's
+				in-flight count dropped back to 0.</li>
+				<li>Registers took the same path as messages, the other way: fetched and checked off-chain,
+				consumed through an inherent, and settled against the sender's ring.</li>
+				<li>JAM stored a few 32-byte roots and checked each block's dependencies. All messages and
 				proofs stayed with the two chains.</li>
 			</ul>`,
 	},

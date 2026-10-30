@@ -27,6 +27,7 @@
 		<path id="pTx2" d="M910,411 L910,351" />
 		<path id="pA5" d="M580,684 C420,584 144,554 124,636" />
 		<path id="pB5" d="M580,684 C740,584 904,554 924,636" />
+		<path id="pB6" d="M580,684 C740,584 948,554 968,636" />
 		<path id="pMReq" d="M670,399 L530,399" />
 		<path id="pMResp" d="M545,426 L655,426" />
 		<path id="pWhyIn" d="M200,330 C200,420 340,440 340,533" />
@@ -85,16 +86,16 @@
 		</g>
 
 		<text class="ch-title" x="50" y="104">Channel A→B</text>
-		<g id="a-phase-opening" style="opacity:0">
+		<g id="a-phase-hello" style="opacity:0">
 			<g class="pill amber" transform="translate(215,100)">
 				<rect x="-42" y="-11" width="84" height="22" rx="11" />
-				<text y="4" text-anchor="middle">Opening</text>
+				<text y="4" text-anchor="middle">Hello sent</text>
 			</g>
 		</g>
 		<g id="a-phase-open" style="opacity:0">
 			<g class="pill green" transform="translate(215,100)">
 				<rect x="-42" y="-11" width="84" height="22" rx="11" />
-				<text y="4" text-anchor="middle">Open</text>
+				<text y="4" text-anchor="middle">Opened</text>
 			</g>
 		</g>
 
@@ -110,11 +111,11 @@
 		</g>
 		<g id="a-leaf0p" class="leaf pending" style="opacity:0">
 			<rect x="150" y="118" width="48" height="40" rx="6" />
-			<text class="lbl" x="174" y="143" text-anchor="middle">OpenCh</text>
+			<text class="lbl" x="174" y="143" text-anchor="middle">Hello</text>
 		</g>
 		<g id="a-leaf0" class="leaf" style="opacity:0">
 			<rect x="150" y="118" width="48" height="40" rx="6" />
-			<text x="174" y="143" text-anchor="middle">OpenCh</text>
+			<text x="174" y="143" text-anchor="middle">Hello</text>
 		</g>
 		<g id="a-leaf1" class="leaf pending" style="opacity:0">
 			<rect x="204" y="118" width="48" height="40" rx="6" />
@@ -137,27 +138,33 @@
 		<text id="a-ack-none" class="mono dim" x="150" y="213">—</text>
 		<g id="a-ack-reg" style="opacity:0">
 			<g id="a-ack-reg-l1">
-				<g class="leaf bcopy"><rect x="150" y="196" width="40" height="26" rx="5" /><text x="170" y="213" text-anchor="middle">Reg</text></g>
-				<text class="mono" x="200" y="213">up_to 0</text>
+				<g class="leaf bcopy"><rect x="150" y="196" width="40" height="26" rx="5" /><text x="170" y="213" text-anchor="middle">Reg₀</text></g>
+				<text class="mono" x="200" y="213">Accepting s1</text>
 			</g>
-			<g transform="translate(322,209)"><g id="a-req-line" class="pill borange"><rect x="-44" y="-11" width="88" height="22" rx="11" /><text y="4" text-anchor="middle">needs T<tspan class="subs" dy="3">B1</tspan></text></g></g>
+			<g transform="translate(410,209)"><g id="a-req-line" class="pill borange"><rect x="-44" y="-11" width="88" height="22" rx="11" /><text y="4" text-anchor="middle">needs T<tspan class="subs" dy="3">B1</tspan></text></g></g>
 		</g>
 
-		<!-- Stage 1: credit gauge and the block's send calls -->
+		<!-- In-flight gauge (A's own MaxInFlight limit) and the block's send calls -->
 		<g id="a-credit" style="opacity:0">
 			<rect class="credit-bg" x="150" y="238" width="120" height="8" rx="4" />
 			<rect id="a-credit-fill" class="credit-fill" x="150" y="238" width="7.5" height="8" rx="4" />
-			<text id="a-cr-1" class="small" x="280" y="246">1/16 msg in flight</text>
+			<text id="a-cr-h" class="small" x="280" y="246">1/16 msg in flight</text>
+			<text id="a-cr-0a" class="small" x="280" y="246" style="opacity:0">0/16 msg in flight</text>
+			<text id="a-cr-1" class="small" x="280" y="246" style="opacity:0">1/16 msg in flight</text>
 			<text id="a-cr-2" class="small" x="280" y="246" style="opacity:0">2/16 msg in flight</text>
-			<text id="a-cr-3" class="small" x="280" y="246" style="opacity:0">3/16 msg in flight</text>
 			<text id="a-cr-0" class="small" x="280" y="246" style="opacity:0">0/16 msg in flight</text>
 		</g>
-		<!-- Stage 6: B's second register, read under T_B2 -->
+		<!-- B's later registers, as A applies them -->
 		<g id="a-ack-reg2" style="opacity:0">
-			<g class="leaf bcopy"><rect x="150" y="196" width="40" height="26" rx="5" /><text x="170" y="213" text-anchor="middle">Reg′</text></g>
-			<text class="mono" x="200" y="213">up_to 3</text>
+			<g class="leaf bcopy"><rect x="150" y="196" width="40" height="26" rx="5" /><text x="170" y="213" text-anchor="middle">Reg₁</text></g>
+				<text class="mono" x="200" y="213">up_to 1 · Opened</text>
 		</g>
-		<g transform="translate(322,209)"><g id="a-req2" class="pill borange" style="opacity:0"><rect x="-44" y="-11" width="88" height="22" rx="11" /><text y="4" text-anchor="middle">needs T<tspan class="subs" dy="3">B2</tspan></text></g></g>
+		<g transform="translate(410,209)"><g id="a-req2" class="pill borange" style="opacity:0"><rect x="-44" y="-11" width="88" height="22" rx="11" /><text y="4" text-anchor="middle">needs T<tspan class="subs" dy="3">B2</tspan></text></g></g>
+		<g id="a-ack-reg3" style="opacity:0">
+			<g class="leaf bcopy"><rect x="150" y="196" width="40" height="26" rx="5" /><text x="170" y="213" text-anchor="middle">Reg₂</text></g>
+				<text class="mono" x="200" y="213">up_to 3 · Opened</text>
+		</g>
+		<g transform="translate(410,209)"><g id="a-req3" class="pill borange" style="opacity:0"><rect x="-44" y="-11" width="88" height="22" rx="11" /><text y="4" text-anchor="middle">needs T<tspan class="subs" dy="3">B3</tspan></text></g></g>
 		<g id="a-leaf1s" class="leaf" style="opacity:0">
 			<rect x="204" y="118" width="48" height="40" rx="6" />
 			<text class="msg-leaf" x="228" y="143" text-anchor="middle">m₁</text>
@@ -205,6 +212,7 @@
 				<text id="b-root-0" class="dim" text-anchor="middle" y="5">root —</text>
 				<text id="b-root-1" text-anchor="middle" y="5" style="opacity:0">root T<tspan class="subs" dy="3">B1</tspan></text>
 				<text id="b-root-2" text-anchor="middle" y="5" style="opacity:0">root T<tspan class="subs" dy="3">B2</tspan></text>
+				<text id="b-root-3" text-anchor="middle" y="5" style="opacity:0">root T<tspan class="subs" dy="3">B3</tspan></text>
 			</g>
 		</g>
 
@@ -212,10 +220,6 @@
 
 		<g id="b-channel" style="opacity:0">
 			<text class="ch-title" x="670" y="104">Channel A→B</text>
-			<g class="pill green" transform="translate(835,100)">
-				<rect x="-42" y="-11" width="84" height="22" rx="11" />
-				<text y="4" text-anchor="middle">Accepted</text>
-			</g>
 
 			<!-- data row: B reads -->
 						<g class="chip data"><rect x="670" y="129" width="44" height="20" rx="10" /><text x="692" y="143" text-anchor="middle">data</text></g>
@@ -239,31 +243,59 @@
 				<rect x="1040" y="190" width="48" height="40" rx="6" />
 			</g>
 		</g>
+		<g id="b-phase-accepting" class="pill amber" transform="translate(835,100)" style="opacity:0">
+			<rect x="-42" y="-11" width="84" height="22" rx="11" />
+			<text y="4" text-anchor="middle">Accepting</text>
+		</g>
+		<g id="b-phase-opened" class="pill green" transform="translate(835,100)" style="opacity:0">
+			<rect x="-42" y="-11" width="84" height="22" rx="11" />
+			<text y="4" text-anchor="middle">Opened</text>
+		</g>
 		<g id="b-leaf0p" class="leaf pending" style="opacity:0">
 			<rect x="770" y="190" width="48" height="40" rx="6" />
-			<text class="lbl" x="794" y="215" text-anchor="middle">Reg</text>
+			<text class="lbl" x="794" y="215" text-anchor="middle">Reg₀</text>
 		</g>
 		<g id="b-leaf0" class="leaf" style="opacity:0">
 			<rect x="770" y="190" width="48" height="40" rx="6" />
-			<text x="794" y="215" text-anchor="middle">Reg</text>
+			<text x="794" y="215" text-anchor="middle">Reg₀</text>
 		</g>
-		<text id="b-leaf0-detail" class="detail mono" x="770" y="254" style="opacity:0">up_to 0 · grant 16 msg</text>
-		<text id="b-leaf1-detail" class="detail mono" x="770" y="254" style="opacity:0">up_to 3 · grant 16 msg</text>
+		<text id="b-leaf0-detail" class="detail mono" x="770" y="254" style="opacity:0">Reg₀ · up_to 0 · Accepting s1</text>
+		<text id="b-leaf1-detail" class="detail mono" x="770" y="254" style="opacity:0">Reg₁ · up_to 1 · Opened</text>
+		<text id="b-leaf2-detail" class="detail mono" x="770" y="254" style="opacity:0">Reg₂ · up_to 3 · Opened</text>
 		<g id="b-leaf1p" class="leaf pending" style="opacity:0">
 			<rect x="824" y="190" width="48" height="40" rx="6" />
-			<text class="lbl" x="848" y="215" text-anchor="middle">Reg′</text>
+			<text class="lbl" x="848" y="215" text-anchor="middle">Reg₁</text>
 		</g>
 		<g id="b-leaf1" class="leaf" style="opacity:0">
 			<rect x="824" y="190" width="48" height="40" rx="6" />
-			<text x="848" y="215" text-anchor="middle">Reg′</text>
+			<text x="848" y="215" text-anchor="middle">Reg₁</text>
+		</g>
+		<g id="b-leaf2p" class="leaf pending" style="opacity:0">
+			<rect x="878" y="190" width="48" height="40" rx="6" />
+			<text class="lbl" x="902" y="215" text-anchor="middle">Reg₂</text>
+		</g>
+		<g id="b-leaf2" class="leaf" style="opacity:0">
+			<rect x="878" y="190" width="48" height="40" rx="6" />
+			<text x="902" y="215" text-anchor="middle">Reg₂</text>
 		</g>
 		<!-- Stage 4: A's messages consumed into B's inbound frontier -->
-		<g id="b-in0" class="leaf acopy" style="opacity:0"><rect x="770" y="118" width="48" height="40" rx="6" /><text x="794" y="143" text-anchor="middle">OpenCh</text></g>
+		<g id="b-in0" class="leaf acopy" style="opacity:0"><rect x="770" y="118" width="48" height="40" rx="6" /><text x="794" y="143" text-anchor="middle">Hello</text></g>
 		<g id="b-in1" class="leaf acopy" style="opacity:0"><rect x="824" y="118" width="48" height="40" rx="6" /><text class="msg-leaf" x="848" y="143" text-anchor="middle">m₁</text></g>
 		<g id="b-in2" class="leaf acopy" style="opacity:0"><rect x="878" y="118" width="48" height="40" rx="6" /><text class="msg-leaf" x="902" y="143" text-anchor="middle">m₂</text></g>
+		<g id="b-record0" style="opacity:0">
+			<line class="split" x1="772" y1="165" x2="816" y2="165" />
+			<text class="split-label" x="772" y="179">consumed 0 → 1 · block M+1</text>
+		</g>
 		<g id="b-record" style="opacity:0">
-			<line class="split" x1="772" y1="165" x2="924" y2="165" />
-			<text class="split-label" x="848" y="179" text-anchor="middle">consumed 0 → 3 · block M+1</text>
+			<line class="split" x1="826" y1="165" x2="924" y2="165" />
+			<text class="split-label" x="875" y="179" text-anchor="middle">consumed 1 → 3 · block M+2</text>
+		</g>
+		<!-- consumed Data is enqueued for B's application, never executed by the inherent -->
+		<g id="b-queue" style="opacity:0">
+			<text class="archive-label" x="670" y="296">message queue</text>
+			<g class="archive-chip"><rect x="770" y="283" width="40" height="18" rx="4" /><text x="790" y="296" text-anchor="middle" class="msg">m₁</text></g>
+			<g class="archive-chip"><rect x="814" y="283" width="40" height="18" rx="4" /><text x="834" y="296" text-anchor="middle" class="msg">m₂</text></g>
+			<text class="archive-note" x="864" y="296">→ B's application</text>
 		</g>
 		<path id="b-fold" class="fold" d="M1092,210 C1130,210 1130,90 1090,64" />
 	</g>
@@ -287,27 +319,29 @@
 		<text class="title-s" x="290" y="404" text-anchor="middle">A's collator node</text>
 		<!-- node-local archive of A's sends, by position on the data stream -->
 		<text id="a-archive" class="archive-label" x="168" y="431" style="opacity:0">archive · data</text>
-		<g id="arc-a0" class="archive-chip" style="opacity:0"><rect x="246" y="418" width="40" height="18" rx="4" /><text x="266" y="431" text-anchor="middle">OpenCh</text></g>
+		<g id="arc-a0" class="archive-chip" style="opacity:0"><rect x="246" y="418" width="40" height="18" rx="4" /><text x="266" y="431" text-anchor="middle">Hello</text></g>
 		<g id="arc-a1" class="archive-chip" style="opacity:0"><rect x="290" y="418" width="40" height="18" rx="4" /><text x="310" y="432" text-anchor="middle" class="msg">m₁</text></g>
 		<g id="arc-a2" class="archive-chip" style="opacity:0"><rect x="334" y="418" width="40" height="18" rx="4" /><text x="354" y="432" text-anchor="middle" class="msg">m₂</text></g>
-		<text id="arc-a-pruned" class="archive-note" x="246" y="431" style="opacity:0">pruned #0–#2 (below up_to 3)</text>
+		<text id="arc-a-pruned" class="archive-note" x="246" y="431" style="opacity:0">pruned #0–#2 · M+2 final</text>
 		<!-- peer data this collator fetched and verified, staged for its next inherent -->
 		<text id="a-fetched" class="archive-label" x="168" y="455" style="opacity:0">fetched · ack</text>
-		<g id="fet-a0" class="archive-chip b" style="opacity:0"><rect x="246" y="442" width="40" height="18" rx="4" /><text x="266" y="455" text-anchor="middle">Reg</text></g>
-		<g id="fet-a1" class="archive-chip b" style="opacity:0"><rect x="246" y="442" width="40" height="18" rx="4" /><text x="266" y="455" text-anchor="middle">Reg′</text></g>
+		<g id="fet-a0" class="archive-chip b" style="opacity:0"><rect x="246" y="442" width="40" height="18" rx="4" /><text x="266" y="455" text-anchor="middle">Reg₀</text></g>
+		<g id="fet-a1" class="archive-chip b" style="opacity:0"><rect x="246" y="442" width="40" height="18" rx="4" /><text x="266" y="455" text-anchor="middle">Reg₁</text></g>
+		<g id="fet-a2" class="archive-chip b" style="opacity:0"><rect x="246" y="442" width="40" height="18" rx="4" /><text x="266" y="455" text-anchor="middle">Reg₂</text></g>
 	</g>
 	<g id="colB" class="node-g b">
 		<rect class="node" x="770" y="376" width="280" height="92" rx="10" />
 		<text class="title-s" x="910" y="404" text-anchor="middle">B's collator node</text>
 		<text id="b-archive" class="archive-label" x="788" y="431" style="opacity:0">archive · ack</text>
-		<g id="arc-b0" class="archive-chip b" style="opacity:0"><rect x="866" y="418" width="40" height="18" rx="4" /><text x="886" y="431" text-anchor="middle">Reg</text></g>
-		<g id="arc-b1" class="archive-chip b" style="opacity:0"><rect x="910" y="418" width="40" height="18" rx="4" /><text x="930" y="431" text-anchor="middle">Reg′</text></g>
+		<g id="arc-b0" class="archive-chip b" style="opacity:0"><rect x="866" y="418" width="40" height="18" rx="4" /><text x="886" y="431" text-anchor="middle">Reg₀</text></g>
+		<g id="arc-b1" class="archive-chip b" style="opacity:0"><rect x="910" y="418" width="40" height="18" rx="4" /><text x="930" y="431" text-anchor="middle">Reg₁</text></g>
+		<g id="arc-b2" class="archive-chip b" style="opacity:0"><rect x="954" y="418" width="40" height="18" rx="4" /><text x="974" y="431" text-anchor="middle">Reg₂</text></g>
 		<text id="b-fetched" class="archive-label" x="788" y="455" style="opacity:0">fetched · data</text>
-		<g id="fet-b0" class="archive-chip" style="opacity:0"><rect x="866" y="442" width="40" height="18" rx="4" /><text x="886" y="455" text-anchor="middle">OpenCh</text></g>
-		<g id="fet-b1" class="archive-chip" style="opacity:0"><rect x="910" y="442" width="40" height="18" rx="4" /><text x="930" y="456" text-anchor="middle" class="msg">m₁</text></g>
-		<g id="fet-b2" class="archive-chip" style="opacity:0"><rect x="954" y="442" width="40" height="18" rx="4" /><text x="974" y="456" text-anchor="middle" class="msg">m₂</text></g>
+		<g id="fet-bh" class="archive-chip" style="opacity:0"><rect x="866" y="442" width="40" height="18" rx="4" /><text x="886" y="455" text-anchor="middle">Hello</text></g>
+		<g id="fet-b1" class="archive-chip" style="opacity:0"><rect x="866" y="442" width="40" height="18" rx="4" /><text x="886" y="456" text-anchor="middle" class="msg">m₁</text></g>
+		<g id="fet-b2" class="archive-chip" style="opacity:0"><rect x="910" y="442" width="40" height="18" rx="4" /><text x="930" y="456" text-anchor="middle" class="msg">m₂</text></g>
 	</g>
-	<!-- Whoever signs accept_open_channel on B's side -->
+	<!-- Whoever submits accept_open_channel on B's side (B's policy) -->
 	<g id="user" class="actor" style="opacity:0">
 		<circle cx="1115" cy="399" r="8" />
 		<path d="M1101,423 a14,12 0 0 1 28,0 z" />
@@ -346,14 +380,14 @@
 
 		<g id="refine-wpB" class="pill amber" transform="translate(760,584)" style="opacity:0">
 			<rect x="-58" y="-11" width="116" height="22" rx="11" />
-			<text y="4" text-anchor="middle">WP · block M+1</text>
+			<text y="4" text-anchor="middle">WP · block M+2</text>
 		</g>
 		<g id="acc-digestB" class="pill borange" transform="translate(580,738)" style="opacity:0">
-			<rect x="-100" y="-11" width="200" height="22" rx="11" />
-			<text y="4" text-anchor="middle">digest · requires (A, T<tspan class="subs" dy="3">A2</tspan><tspan dy="-3"></tspan>)</text>
+			<rect x="-120" y="-11" width="240" height="22" rx="11" />
+			<text y="4" text-anchor="middle">digest · T<tspan class="subs" dy="3">B3</tspan><tspan dy="-3"></tspan> · requires (A, T<tspan class="subs" dy="3">A2</tspan><tspan dy="-3"></tspan>)</text>
 		</g>
 
-		<!-- settlement ring A; the caret marks the next free slot -->
+		<!-- settlement ring A: its 64 newest distinct roots, oldest evicted first -->
 		<g class="slots">
 			<rect x="60" y="616" width="40" height="40" rx="6" />
 			<rect x="104" y="616" width="40" height="40" rx="6" />
@@ -370,11 +404,7 @@
 			<rect x="104" y="616" width="40" height="40" rx="6" />
 			<text class="mono" x="124" y="640" text-anchor="middle">T<tspan class="subs" dy="3">A2</tspan></text>
 		</g>
-		<g id="a-head" class="caret">
-			<path d="M80,664 l-6,10 h12 z" />
-			<text x="80" y="687" text-anchor="middle">head</text>
-		</g>
-		<text class="label" x="60" y="712">settlement ring A · 64 roots</text>
+		<text class="label" x="60" y="712">settlement ring A · 64 newest roots</text>
 
 		<!-- settlement ring B -->
 		<g class="slots">
@@ -393,11 +423,11 @@
 			<rect x="904" y="616" width="40" height="40" rx="6" />
 			<text class="mono" x="924" y="640" text-anchor="middle">T<tspan class="subs" dy="3">B2</tspan></text>
 		</g>
-		<g id="b-head" class="caret">
-			<path d="M880,664 l-6,10 h12 z" />
-			<text x="880" y="687" text-anchor="middle">head</text>
+		<g id="b-ring2" class="ring-entry b" style="opacity:0">
+			<rect x="948" y="616" width="40" height="40" rx="6" />
+			<text class="mono" x="968" y="640" text-anchor="middle">T<tspan class="subs" dy="3">B3</tspan></text>
 		</g>
-		<text class="label" x="860" y="712">settlement ring B · 64 roots</text>
+		<text class="label" x="860" y="712">settlement ring B · 64 newest roots</text>
 
 		<text id="a-32" class="size-badge" x="84" y="610" style="opacity:0">32 B</text>
 		<text id="b-32" class="size-badge" x="884" y="610" style="opacity:0">32 B</text>
@@ -407,6 +437,9 @@
 	<path id="read-line" class="read-line" d="M880,614 C880,524 640,486 432,441" />
 	<path id="read-line2" class="read-line" d="M124,614 C124,589 430,599 452,534 C468,481 690,471 768,461" />
 	<path id="read-line3" class="read-line" d="M924,614 C924,524 640,491 432,456" />
+	<path id="read-line4" class="read-line" d="M968,614 C968,524 640,491 432,456" />
+	<!-- B's collator reading A's newest root from A's ring -->
+	<path id="read-lineA1" class="read-line" d="M80,614 C80,589 430,599 452,534 C468,481 690,471 768,461" />
 
 	<!-- Settlement checks of A's import blocks reach into B's ring -->
 	<path id="check-lineB" class="check-line" d="M680,664 C760,604 860,569 880,622" />
@@ -420,7 +453,18 @@
 		<text y="4" text-anchor="middle">✓ T<tspan class="subs" dy="3">B2</tspan><tspan dy="-3"> in B's ring</tspan></text>
 	</g>
 
-	<!-- Accumulate's settlement check for block M+1 reaches into A's ring -->
+	<path id="check-lineB3" class="check-line" d="M680,664 C800,604 948,569 968,622" />
+	<g id="check-lblB3" class="pill green" transform="translate(968,572)" style="opacity:0">
+		<rect x="-72" y="-11" width="144" height="22" rx="11" />
+		<text y="4" text-anchor="middle">✓ T<tspan class="subs" dy="3">B3</tspan><tspan dy="-3"> in B's ring</tspan></text>
+	</g>
+
+	<!-- Accumulate's settlement checks for B's blocks reach into A's ring -->
+	<path id="check-lineA1" class="check-line" d="M480,664 C400,604 110,564 80,622" />
+	<g id="check-lblA1" class="pill green" transform="translate(290,572)" style="opacity:0">
+		<rect x="-72" y="-11" width="144" height="22" rx="11" />
+		<text y="4" text-anchor="middle">✓ T<tspan class="subs" dy="3">A1</tspan><tspan dy="-3"> in A's ring</tspan></text>
+	</g>
 	<path id="check-line" class="check-line" d="M480,664 C400,604 150,564 124,622" />
 	<g id="check-lbl" class="pill green" transform="translate(330,572)" style="opacity:0">
 		<rect x="-72" y="-11" width="144" height="22" rx="11" />
@@ -458,8 +502,8 @@
 		</g>
 		<text id="mmr-peaks" class="hint" x="420" y="490" style="opacity:0">peaks: h₀₁ and #2</text>
 		<g id="mmr-root" class="mroot" style="opacity:0">
-			<rect x="230" y="378" width="180" height="30" rx="6" />
-			<text x="320" y="398" text-anchor="middle">data root = bag(peaks)</text>
+			<rect x="205" y="378" width="230" height="30" rx="6" />
+			<text x="320" y="398" text-anchor="middle">data root = H(3 ‖ bag(peaks))</text>
 		</g>
 		<text class="hint" x="200" y="592">the stored frontier only catches up at block N+3 init</text>
 
@@ -543,8 +587,8 @@
 		<text class="title" x="200" y="290">B's collator checks the response, node-side</text>
 		<text class="sub" x="200" y="312">every response is verifiable on its own, against exactly the root the request named</text>
 		<line class="card-sep" x1="200" y1="326" x2="1000" y2="326" />
-		<g id="vf-r0" class="rf-row" style="opacity:0"><text class="mono" x="200" y="352">hash OpenCh, m₁, m₂; append to frontier(0)</text><text class="arrow" x="590" y="352">→</text><text class="mono" x="620" y="352">frontier(3)</text></g>
-		<g id="vf-r1" class="rf-row" style="opacity:0"><text class="mono" x="200" y="380">no extension needed (B is caught up)</text><text class="arrow" x="590" y="380">→</text><text class="mono" x="620" y="380">data root</text></g>
+		<g id="vf-r0" class="rf-row" style="opacity:0"><text class="mono" x="200" y="352">hash m₁, m₂; append to frontier(1)</text><text class="arrow" x="590" y="352">→</text><text class="mono" x="620" y="352">frontier(3)</text></g>
+		<g id="vf-r1" class="rf-row" style="opacity:0"><text class="mono" x="200" y="380">no extension needed (B is caught up)</text><text class="arrow" x="590" y="380">→</text><text class="mono" x="620" y="380">data root = H(3 ‖ bag(peaks))</text></g>
 		<g id="vf-r2" class="rf-row" style="opacity:0"><text class="mono" x="200" y="408">trie proof for A's data stream</text><text class="arrow" x="590" y="408">→</text><text class="mono" x="620" y="408">StreamsRoot</text></g>
 		<g id="vf-r3" class="rf-row hot" style="opacity:0"><rect class="row-hi" x="192" y="422" width="816" height="26" rx="6" /><text class="mono" x="200" y="440">compare with the root the request named</text><text class="arrow" x="590" y="440">→</text><text class="mono" x="620" y="440">= T<tspan class="subs" dy="3">A2</tspan><tspan dy="-3"></tspan> ✓</text></g>
 		<text id="vf-foot" class="hint" x="200" y="525" style="opacity:0">a mismatch anywhere discards the response and the peer; one honest collator is enough</text>
@@ -554,17 +598,17 @@
 	<g id="rf2-card" style="opacity:0">
 		<rect class="backdrop" x="0" y="0" width="1200" height="820" />
 		<rect class="card" x="170" y="210" width="860" height="395" rx="16" />
-		<text class="title" x="200" y="250">Refine for block M+1 · B's validation code</text>
-		<text class="sub" x="200" y="272">block M+1 never saw a root; validation binds its consumption to one, using the lift in the PoV</text>
+		<text class="title" x="200" y="250">Refine for block M+2 · B's validation code</text>
+		<text class="sub" x="200" y="272">block M+2 never saw a root of A; validation binds its consumption to one, using the lift in the PoV</text>
 		<text class="label" x="200" y="300">validation step</text>
 		<text class="label" x="620" y="300">result</text>
 		<line class="card-sep" x1="200" y1="308" x2="1000" y2="308" />
-		<g id="rf2-r0" class="rf-row" style="opacity:0"><text class="mono" x="200" y="332">execute block M+1</text><text class="arrow" x="590" y="332">→</text><text class="mono" x="620" y="332">record: A's data stream, 0 → 3</text></g>
+		<g id="rf2-r0" class="rf-row" style="opacity:0"><text class="mono" x="200" y="332">execute block M+2</text><text class="arrow" x="590" y="332">→</text><text class="mono" x="620" y="332">record: A's data stream, 1 → 3</text></g>
 		<g id="rf2-r1" class="rf-row" style="opacity:0"><text class="mono" x="200" y="358">read the consumption record</text><text class="arrow" x="590" y="358">→</text><text class="mono" x="620" y="358">A's stream as consumed: frontier(3)</text></g>
-		<g id="rf2-r2" class="rf-row" style="opacity:0"><text class="mono" x="200" y="384">lift: no extension (B is caught up)</text><text class="arrow" x="590" y="384">→</text><text class="mono" x="620" y="384">data root = bag(frontier(3))</text></g>
+		<g id="rf2-r2" class="rf-row" style="opacity:0"><text class="mono" x="200" y="384">lift: no extension (B is caught up)</text><text class="arrow" x="590" y="384">→</text><text class="mono" x="620" y="384">data root = H(3 ‖ bag(peaks))</text></g>
 		<g id="rf2-r3" class="rf-row" style="opacity:0"><text class="mono" x="200" y="410">lift: trie proof for A's data stream</text><text class="arrow" x="590" y="410">→</text><text class="mono" x="620" y="410">StreamsRoot = T<tspan class="subs" dy="3">A2</tspan><tspan dy="-3"></tspan></text></g>
 		<g id="rf2-r4" class="rf-row hot" style="opacity:0"><rect class="row-hi" x="192" y="422" width="816" height="26" rx="6" /><text class="mono" x="200" y="440">205 set_messages_requires_roots</text><text class="arrow" x="590" y="440">→</text><text class="mono" x="620" y="440">requires_roots: [(A, T<tspan class="subs" dy="3">A2</tspan><tspan dy="-3"></tspan>)]</text></g>
-		<g id="rf2-r5" class="rf-row" style="opacity:0"><text class="mono dim" x="200" y="470">204 not called: block M+1 sent nothing</text><text class="arrow" x="590" y="470">→</text><text class="mono" x="620" y="470">messages_streams_root: None</text></g>
+		<g id="rf2-r5" class="rf-row" style="opacity:0"><text class="mono" x="200" y="470">204 set_messages_streams_root(T<tspan class="subs" dy="3">B3</tspan><tspan dy="-3"></tspan>)</text><text class="arrow" x="590" y="470">→</text><text class="mono" x="620" y="470">messages_streams_root: Some(T<tspan class="subs" dy="3">B3</tspan><tspan dy="-3"></tspan>)</text></g>
 		<text id="rf2-foot" class="hint" x="200" y="580" style="opacity:0">the lift is public data: anyone can rebuild it from A's streams and roots, so any collator can complete the candidate</text>
 	</g>
 
@@ -652,16 +696,16 @@
 		<text class="mono" y="5" text-anchor="middle">↑ tx: accept_open_channel(A, …)</text>
 	</g>
 	<g id="req" class="token offchain" style="opacity:0">
-		<rect x="-75" y="-13" width="150" height="26" rx="13" />
-		<text y="5" text-anchor="middle">EventRequest · T<tspan class="subs" dy="3">B1</tspan></text>
+		<rect x="-106" y="-13" width="212" height="26" rx="13" />
+		<text y="5" text-anchor="middle">MessagesRequest · newest · T<tspan class="subs" dy="3">B1</tspan></text>
 	</g>
 	<g id="resp" class="token offchain" style="opacity:0">
 		<rect x="-56" y="-13" width="112" height="26" rx="13" />
-		<g class="archive-chip b"><rect x="-48" y="-9" width="40" height="18" rx="4" /><text x="-28" y="4" text-anchor="middle">Reg</text></g><text class="tag" x="-2" y="4">+ proofs</text>
+		<g class="archive-chip b"><rect x="-48" y="-9" width="40" height="18" rx="4" /><text x="-28" y="4" text-anchor="middle">Reg₀</text></g><text class="tag" x="-2" y="4">+ proofs</text>
 	</g>
 	<g id="inh" class="token ext" style="opacity:0">
 		<rect x="-57" y="-13" width="114" height="26" rx="13" />
-		<text class="tag" x="-49" y="4">inherent</text><g class="archive-chip b"><rect x="9" y="-9" width="40" height="18" rx="4" /><text x="29" y="4" text-anchor="middle">Reg</text></g>
+		<text class="tag" x="-49" y="4">inherent</text><g class="archive-chip b"><rect x="9" y="-9" width="40" height="18" rx="4" /><text x="29" y="4" text-anchor="middle">Reg₀</text></g>
 	</g>
 	<g id="fly1" class="token call" style="opacity:0">
 		<rect x="-20" y="-11" width="40" height="22" rx="5" />
@@ -672,10 +716,12 @@
 		<text class="mono" y="4" text-anchor="middle">m₂</text>
 	</g>
 	<!-- Leaf copies the collator pulls into its archive via outbound_messages() -->
-	<g id="fly-a0" class="archive-chip" style="opacity:0"><rect x="-20" y="-9" width="40" height="18" rx="4" /><text y="4" text-anchor="middle">OpenCh</text></g>
+	<g id="fly-a0" class="archive-chip" style="opacity:0"><rect x="-20" y="-9" width="40" height="18" rx="4" /><text y="4" text-anchor="middle">Hello</text></g>
 	<g id="fly-a1" class="archive-chip" style="opacity:0"><rect x="-20" y="-9" width="40" height="18" rx="4" /><text y="4" text-anchor="middle" class="msg">m₁</text></g>
 	<g id="fly-a2" class="archive-chip" style="opacity:0"><rect x="-20" y="-9" width="40" height="18" rx="4" /><text y="4" text-anchor="middle" class="msg">m₂</text></g>
-	<g id="fly-b0" class="archive-chip b" style="opacity:0"><rect x="-20" y="-9" width="40" height="18" rx="4" /><text y="4" text-anchor="middle">Reg</text></g>
+	<g id="fly-b0" class="archive-chip b" style="opacity:0"><rect x="-20" y="-9" width="40" height="18" rx="4" /><text y="4" text-anchor="middle">Reg₀</text></g>
+	<g id="fly-b1" class="archive-chip b" style="opacity:0"><rect x="-20" y="-9" width="40" height="18" rx="4" /><text y="4" text-anchor="middle">Reg₁</text></g>
+	<g id="fly-b2" class="archive-chip b" style="opacity:0"><rect x="-20" y="-9" width="40" height="18" rx="4" /><text y="4" text-anchor="middle">Reg₂</text></g>
 	<g id="wp" class="token ext" style="opacity:0">
 		<rect x="-88" y="-14" width="176" height="28" rx="14" />
 		<text y="5" text-anchor="middle">work package · block N+2</text>
@@ -689,42 +735,69 @@
 		<text class="mono" y="5" text-anchor="middle">T<tspan class="subs" dy="3">A2</tspan></text>
 	</g>
 	<g id="mreq" class="token offchain" style="opacity:0">
-		<rect x="-88" y="-13" width="176" height="26" rx="13" />
-		<text y="5" text-anchor="middle">MessagesRequest · T<tspan class="subs" dy="3">A2</tspan></text>
+		<rect x="-98" y="-13" width="196" height="26" rx="13" />
+		<text y="5" text-anchor="middle">MessagesRequest · #1… · T<tspan class="subs" dy="3">A2</tspan></text>
 	</g>
 	<g id="mresp" class="token offchain" style="opacity:0">
-		<rect x="-100" y="-13" width="200" height="26" rx="13" />
-		<g class="archive-chip"><rect x="-92" y="-9" width="40" height="18" rx="4" /><text x="-72" y="4" text-anchor="middle">OpenCh</text></g><g class="archive-chip"><rect x="-48" y="-9" width="40" height="18" rx="4" /><text x="-28" y="4" text-anchor="middle" class="msg">m₁</text></g><g class="archive-chip"><rect x="-4" y="-9" width="40" height="18" rx="4" /><text x="16" y="4" text-anchor="middle" class="msg">m₂</text></g><text class="tag" x="42" y="4">+ proofs</text>
+		<rect x="-78" y="-13" width="156" height="26" rx="13" />
+		<g class="archive-chip"><rect x="-70" y="-9" width="40" height="18" rx="4" /><text x="-50" y="4" text-anchor="middle" class="msg">m₁</text></g><g class="archive-chip"><rect x="-26" y="-9" width="40" height="18" rx="4" /><text x="-6" y="4" text-anchor="middle" class="msg">m₂</text></g><text class="tag" x="20" y="4">+ proofs</text>
 	</g>
 	<g id="inhB" class="token ext" style="opacity:0">
-		<rect x="-101" y="-13" width="202" height="26" rx="13" />
-		<text class="tag" x="-93" y="4">inherent</text><g class="archive-chip"><rect x="-35" y="-9" width="40" height="18" rx="4" /><text x="-15" y="4" text-anchor="middle">OpenCh</text></g><g class="archive-chip"><rect x="9" y="-9" width="40" height="18" rx="4" /><text x="29" y="4" text-anchor="middle" class="msg">m₁</text></g><g class="archive-chip"><rect x="53" y="-9" width="40" height="18" rx="4" /><text x="73" y="4" text-anchor="middle" class="msg">m₂</text></g>
+		<rect x="-79" y="-13" width="158" height="26" rx="13" />
+		<text class="tag" x="-71" y="4">inherent</text><g class="archive-chip"><rect x="-13" y="-9" width="40" height="18" rx="4" /><text x="7" y="4" text-anchor="middle" class="msg">m₁</text></g><g class="archive-chip"><rect x="31" y="-9" width="40" height="18" rx="4" /><text x="51" y="4" text-anchor="middle" class="msg">m₂</text></g>
 	</g>
 	<g id="wpB" class="token ext" style="opacity:0">
 		<rect x="-100" y="-14" width="200" height="28" rx="14" />
-		<text y="5" text-anchor="middle">work package · block M+1</text>
+		<text y="5" text-anchor="middle">work package · block M+2</text>
 	</g>
 	<g id="dgB" class="token b" style="opacity:0">
-		<rect x="-100" y="-14" width="200" height="28" rx="14" />
-		<text y="5" text-anchor="middle">digest · requires (A, T<tspan class="subs" dy="3">A2</tspan><tspan dy="-3"></tspan>)</text>
+		<rect x="-124" y="-14" width="248" height="28" rx="14" />
+		<text y="5" text-anchor="middle">digest · T<tspan class="subs" dy="3">B3</tspan><tspan dy="-3"></tspan> · requires (A, T<tspan class="subs" dy="3">A2</tspan><tspan dy="-3"></tspan>)</text>
 	</g>
 	<g id="tokB2" class="token b" style="opacity:0">
 		<rect x="-30" y="-14" width="60" height="28" rx="14" />
 		<text class="mono" y="5" text-anchor="middle">T<tspan class="subs" dy="3">B2</tspan></text>
 	</g>
 	<g id="req2" class="token offchain" style="opacity:0">
-		<rect x="-75" y="-13" width="150" height="26" rx="13" />
-		<text y="5" text-anchor="middle">EventRequest · T<tspan class="subs" dy="3">B2</tspan></text>
+		<rect x="-106" y="-13" width="212" height="26" rx="13" />
+		<text y="5" text-anchor="middle">MessagesRequest · newest · T<tspan class="subs" dy="3">B2</tspan></text>
 	</g>
 	<g id="resp2" class="token offchain" style="opacity:0">
 		<rect x="-56" y="-13" width="112" height="26" rx="13" />
-		<g class="archive-chip b"><rect x="-48" y="-9" width="40" height="18" rx="4" /><text x="-28" y="4" text-anchor="middle">Reg′</text></g><text class="tag" x="-2" y="4">+ proofs</text>
+		<g class="archive-chip b"><rect x="-48" y="-9" width="40" height="18" rx="4" /><text x="-28" y="4" text-anchor="middle">Reg₁</text></g><text class="tag" x="-2" y="4">+ proofs</text>
 	</g>
 	<g id="inh2" class="token ext" style="opacity:0">
 		<rect x="-57" y="-13" width="114" height="26" rx="13" />
-		<text class="tag" x="-49" y="4">inherent</text><g class="archive-chip b"><rect x="9" y="-9" width="40" height="18" rx="4" /><text x="29" y="4" text-anchor="middle">Reg′</text></g>
+		<text class="tag" x="-49" y="4">inherent</text><g class="archive-chip b"><rect x="9" y="-9" width="40" height="18" rx="4" /><text x="29" y="4" text-anchor="middle">Reg₁</text></g>
 	</g>
-	<g id="fly-b1" class="archive-chip b" style="opacity:0"><rect x="-20" y="-9" width="40" height="18" rx="4" /><text x="0" y="4" text-anchor="middle">Reg′</text></g>
+	<g id="hreq" class="token offchain" style="opacity:0">
+		<rect x="-98" y="-13" width="196" height="26" rx="13" />
+		<text y="5" text-anchor="middle">MessagesRequest · #0… · T<tspan class="subs" dy="3">A1</tspan></text>
+	</g>
+	<g id="hresp" class="token offchain" style="opacity:0">
+		<rect x="-56" y="-13" width="112" height="26" rx="13" />
+		<g class="archive-chip"><rect x="-48" y="-9" width="40" height="18" rx="4" /><text x="-28" y="4" text-anchor="middle">Hello</text></g><text class="tag" x="-2" y="4">+ proofs</text>
+	</g>
+	<g id="inhH" class="token ext" style="opacity:0">
+		<rect x="-57" y="-13" width="114" height="26" rx="13" />
+		<text class="tag" x="-49" y="4">inherent</text><g class="archive-chip"><rect x="9" y="-9" width="40" height="18" rx="4" /><text x="29" y="4" text-anchor="middle">Hello</text></g>
+	</g>
+	<g id="req3" class="token offchain" style="opacity:0">
+		<rect x="-106" y="-13" width="212" height="26" rx="13" />
+		<text y="5" text-anchor="middle">MessagesRequest · newest · T<tspan class="subs" dy="3">B3</tspan></text>
+	</g>
+	<g id="resp3" class="token offchain" style="opacity:0">
+		<rect x="-56" y="-13" width="112" height="26" rx="13" />
+		<g class="archive-chip b"><rect x="-48" y="-9" width="40" height="18" rx="4" /><text x="-28" y="4" text-anchor="middle">Reg₂</text></g><text class="tag" x="-2" y="4">+ proofs</text>
+	</g>
+	<g id="inh3" class="token ext" style="opacity:0">
+		<rect x="-57" y="-13" width="114" height="26" rx="13" />
+		<text class="tag" x="-49" y="4">inherent</text><g class="archive-chip b"><rect x="9" y="-9" width="40" height="18" rx="4" /><text x="29" y="4" text-anchor="middle">Reg₂</text></g>
+	</g>
+	<g id="tokB3" class="token b" style="opacity:0">
+		<rect x="-30" y="-14" width="60" height="28" rx="14" />
+		<text class="mono" y="5" text-anchor="middle">T<tspan class="subs" dy="3">B3</tspan></text>
+	</g>
 </svg>
 
 <aside id="panel">
