@@ -9,8 +9,20 @@ A's first data block in detail on its way to B (commit, settlement on JAM,
 fetch and verify, consumption, the settlement check of B's block), and finally
 the credit flowing back to A.
 
-It complements the Parachain Service on JAM and speculative messaging design
-documents.
+## Specs
+
+The walkthrough follows these design documents, all open pull requests on
+`paritytech/polkadot-sdk`:
+
+- [#11883 JAM: Parachain Service Design](https://github.com/paritytech/polkadot-sdk/pull/11883):
+  the Parachain Service on JAM.
+- [#13000 jam: Speculative Messaging spec for PS](https://github.com/paritytech/polkadot-sdk/pull/13000):
+  speculative messaging over the Parachain Service, stacked on #11883. This is
+  the main source for the walkthrough.
+- [#12659 Speculative Messaging v0.5](https://github.com/paritytech/polkadot-sdk/pull/12659):
+  the general speculative messaging design that #13000 builds on.
+  [#13622](https://github.com/paritytech/polkadot-sdk/pull/13622) revises it to
+  v0.6.
 
 ## Run
 
